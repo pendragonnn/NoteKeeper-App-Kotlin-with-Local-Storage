@@ -1,11 +1,13 @@
 package com.example.notekeeper
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -66,10 +68,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onDelete(note: Note) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    db.noteDao().deleteNote(note)
-                    loadNote()
-                }
+                deleteDialog(note)
             }
         })
         rcNote = findViewById(R.id.list_note)
@@ -91,5 +90,24 @@ class MainActivity : AppCompatActivity() {
                 noteAdapter.setData(notes)
             }
         }
+    }
+
+    private fun deleteDialog(note: Note) {
+        val alertDialog = AlertDialog.Builder(this)
+        alertDialog.apply {
+            setTitle("Confirm Delete")
+            setMessage("Are you sure want to delete this note?")
+            setNegativeButton("Cancel") { dialogInterface, i ->
+                dialogInterface.dismiss()
+            }
+            setPositiveButton("Delete") { dialogInterface, i ->
+                dialogInterface.dismiss()
+                CoroutineScope(Dispatchers.IO).launch {
+                    db.noteDao().deleteNote(note)
+                    loadNote()
+                }
+            }
+        }
+        alertDialog.show()
     }
 }
