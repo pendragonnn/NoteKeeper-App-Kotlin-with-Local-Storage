@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.notekeeper.room.Note
 
-class NoteAdapter(private val notes: ArrayList<Note>) :
+class NoteAdapter(private val notes: ArrayList<Note>, private val listener: OnAdapterListener) :
     RecyclerView.Adapter<NoteAdapter.NoteViewHolder>() {
     class NoteViewHolder(val view: View): RecyclerView.ViewHolder(view)
 
@@ -21,12 +21,20 @@ class NoteAdapter(private val notes: ArrayList<Note>) :
 
     override fun onBindViewHolder(holder: NoteViewHolder, position: Int) {
         val note = notes[position]
-        holder.view.findViewById<TextView>(R.id.text_title).text = note.title
+        val text_title = holder.view.findViewById<TextView>(R.id.text_title)
+        text_title.text = note.title
+        text_title.setOnClickListener {
+            listener.onClick(note)
+        }
     }
 
     fun setData(list: List<Note>) {
         notes.clear()
         notes.addAll(list)
         notifyDataSetChanged()
+    }
+
+    interface OnAdapterListener {
+        fun onClick(note: Note)
     }
 }
