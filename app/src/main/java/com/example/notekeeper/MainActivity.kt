@@ -57,7 +57,19 @@ class MainActivity : AppCompatActivity() {
     private fun setupRecyclerView() {
         noteAdapter = NoteAdapter(arrayListOf(), object : NoteAdapter.OnAdapterListener{
             override fun onClick(note: Note) {
+                // red detail note
                 intentEdit(Constant.TYPE_READ, note.id)
+            }
+
+            override fun onUpdate(note: Note) {
+                intentEdit(Constant.TYPE_UPDATE, note.id)
+            }
+
+            override fun onDelete(note: Note) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    db.noteDao().deleteNote(note)
+                    loadNote()
+                }
             }
         })
         rcNote = findViewById(R.id.list_note)
@@ -69,6 +81,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        loadNote()
+    }
+
+    fun loadNote() {
         CoroutineScope(Dispatchers.IO).launch {
             val notes = db.noteDao().getNotes()
             withContext(Dispatchers.Main) {

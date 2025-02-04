@@ -22,6 +22,7 @@ class EditActivity : AppCompatActivity() {
     private lateinit var btnSave: Button
     private lateinit var edtTitle: EditText
     private lateinit var edtNote: EditText
+    private lateinit var btnUpdate: Button
 
     private val db by lazy { NoteDB(this) }
     private var noteId: Int = 0
@@ -39,6 +40,7 @@ class EditActivity : AppCompatActivity() {
         btnSave = findViewById(R.id.button_save)
         edtTitle = findViewById(R.id.edit_title)
         edtNote = findViewById(R.id.edit_note)
+        btnUpdate = findViewById(R.id.button_update)
 
         setupView()
         setupListener()
@@ -53,6 +55,15 @@ class EditActivity : AppCompatActivity() {
                 finish()
             }
         }
+
+        btnUpdate.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                db.noteDao().updateNote(
+                    Note(noteId, edtTitle.text.toString(), edtNote.text.toString())
+                )
+                finish()
+            }
+        }
     }
 
     fun setupView() {
@@ -63,6 +74,12 @@ class EditActivity : AppCompatActivity() {
             }
             Constant.TYPE_READ -> {
                 btnSave.visibility = View.GONE
+                btnUpdate.visibility = View.GONE
+                getNote()
+            }
+            Constant.TYPE_UPDATE -> {
+                btnSave.visibility = View.GONE
+                btnUpdate.visibility = View.VISIBLE
                 getNote()
             }
         }
